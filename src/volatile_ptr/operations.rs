@@ -191,10 +191,12 @@ where
     ///
     /// // DON'T DO THIS:
     /// let mut readout = 0;
-    /// unsafe { volatile.map(|value| {
-    ///    readout = *value.as_ptr(); // non-volatile read, might lead to bugs
-    ///    value
-    /// })};
+    /// unsafe {
+    ///     volatile.map(|value| {
+    ///         readout = *value.as_ptr(); // non-volatile read, might lead to bugs
+    ///         value
+    ///     });
+    /// };
     /// ```
     ///
     /// ## Safety
