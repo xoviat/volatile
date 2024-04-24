@@ -128,7 +128,7 @@ fn test_slice() {
 fn test_bounds_check_1() {
     let val: &mut [u32] = &mut [1, 2, 3];
     let volatile = unsafe { VolatilePtr::new(NonNull::from(val)) };
-    volatile.index(3);
+    let _ = volatile.index(3);
 }
 
 #[cfg(feature = "unstable")]
@@ -138,7 +138,7 @@ fn test_bounds_check_2() {
     let val: &mut [u32] = &mut [1, 2, 3];
     let volatile = unsafe { VolatilePtr::new(NonNull::from(val)) };
     #[allow(clippy::reversed_empty_ranges)]
-    volatile.index(2..1);
+    let _ = volatile.index(2..1);
 }
 
 #[cfg(feature = "unstable")]
@@ -147,7 +147,7 @@ fn test_bounds_check_2() {
 fn test_bounds_check_3() {
     let val: &mut [u32] = &mut [1, 2, 3];
     let volatile = unsafe { VolatilePtr::new(NonNull::from(val)) };
-    volatile.index(4..); // `3..` is is still ok (see next test)
+    let _ = volatile.index(4..); // `3..` is is still ok (see next test)
 }
 
 #[cfg(feature = "unstable")]
@@ -164,7 +164,7 @@ fn test_bounds_check_4() {
 fn test_bounds_check_5() {
     let val: &mut [u32] = &mut [1, 2, 3];
     let volatile = unsafe { VolatilePtr::new(NonNull::from(val)) };
-    volatile.index(..4);
+    let _ = volatile.index(..4);
 }
 
 #[cfg(feature = "unstable")]
