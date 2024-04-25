@@ -82,6 +82,7 @@ where
     /// };
     /// assert_eq!(pointer.read(), 42);
     /// ```
+    #[must_use]
     pub fn read(self) -> T
     where
         T: Copy,
