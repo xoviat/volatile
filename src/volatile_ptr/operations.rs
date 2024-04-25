@@ -155,6 +155,7 @@ where
     ///
     /// assert_eq!(unsafe { *unwrapped }, 50); // non volatile access, be careful!
     /// ```
+    #[must_use]
     pub fn as_raw_ptr(self) -> NonNull<T> {
         self.pointer
     }
