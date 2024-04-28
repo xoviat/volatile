@@ -24,6 +24,7 @@ mod very_unstable;
 /// to `ReadWrite`, which allows all operations.
 ///
 /// The size of this struct is the same as the size of the contained reference.
+#[must_use]
 #[repr(transparent)]
 pub struct VolatilePtr<'a, T, A = ReadWrite>
 where
