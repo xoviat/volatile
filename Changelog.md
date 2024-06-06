@@ -1,5 +1,7 @@
 # Unreleased
 
+# 0.6.1 – 2024-06-06
+
 # 0.6.0 – 2024-06-06
 
 * **Breaking:** feat: introduce `RestrictAccess<To>` and generalize `restrict` to all access types by @mkroening in https://github.com/rust-osdev/volatile/pull/60
