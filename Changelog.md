@@ -1,5 +1,7 @@
 # Unreleased
 
+# 0.6.0 – 2024-06-06
+
 * **Breaking:** feat: introduce `RestrictAccess<To>` and generalize `restrict` to all access types by @mkroening in https://github.com/rust-osdev/volatile/pull/60
 * feat: implement derive macro for all access types by @mkroening in https://github.com/rust-osdev/volatile/pull/61
 * fix: add `#[must_use]` to volatile types, `read`, and `as_raw_ptr` by @mkroening in https://github.com/rust-osdev/volatile/pull/58
