@@ -1,5 +1,12 @@
 # Unreleased
 
+* **Breaking:** feat: introduce `RestrictAccess<To>` and generalize `restrict` to all access types by @mkroening in https://github.com/rust-osdev/volatile/pull/60
+* feat: implement derive macro for all access types by @mkroening in https://github.com/rust-osdev/volatile/pull/61
+* fix: add `#[must_use]` to volatile types, `read`, and `as_raw_ptr` by @mkroening in https://github.com/rust-osdev/volatile/pull/58
+* Add a semver checks CI job by @phil-opp in https://github.com/rust-osdev/volatile/pull/63
+
+**Full Changelog**: https://github.com/rust-osdev/volatile/compare/v0.5.4...0.6.0
+
 # 0.5.4 – 2024-04-26
 
 * fix(access): properly seal access traits by @mkroening in https://github.com/rust-osdev/volatile/pull/59
