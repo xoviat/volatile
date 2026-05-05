@@ -1,14 +1,85 @@
-use core::{
-    intrinsics,
-    ops::{Range, RangeBounds},
-    ptr::{self, NonNull},
-    slice::{range, SliceIndex},
-};
+#[cfg(feature = "unstable")]
+use core::intrinsics;
+
+#[cfg(feature = "unstable")]
+use core::slice::range;
+
+#[cfg(feature = "unstable")]
+use core::ops::{Range, RangeBounds};
+
+#[cfg(feature = "unstable")]
+use core::slice::SliceIndex;
+
+use core::ptr::{self, NonNull};
 
 use crate::{
     access::{Access, Readable, Writable},
     VolatilePtr,
 };
+
+#[cfg(not(feature = "unstable"))]
+macro_rules! volatile_read_array {
+    ($src:expr, $dst:expr, $ty:ty, $count:expr) => {
+        volatile_read_array!(
+            $src, $dst, $ty, $count, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2, 1
+        )
+    };
+    ($src:expr, $dst:expr, $ty:ty, $count:expr, $($N:expr),* $(,)?) => {
+        match $count {
+            $(
+                c if c >= $N => {
+                    ptr::write($dst as *mut [$ty; $N], ptr::read_volatile($src as *const [$ty; $N]));
+                    $N
+                }
+            )*
+            _ => unreachable!("count is 0"),
+        }
+    };
+}
+
+#[cfg(not(feature = "unstable"))]
+unsafe fn volatile_read_memory<T>(mut src: *const T, mut dst: *mut T, mut count: usize) {
+    unsafe {
+        while count > 0 {
+            let copied = volatile_read_array!(src, dst, T, count);
+            src = src.add(copied);
+            dst = dst.add(copied);
+            count -= copied;
+        }
+    }
+}
+
+#[cfg(not(feature = "unstable"))]
+macro_rules! volatile_write_array {
+    ($src:expr, $dst:expr, $ty:ty, $count:expr) => {
+        volatile_write_array!(
+            $src, $dst, $ty, $count, 1024, 512, 256, 128, 64, 32, 16, 8, 4,  2, 1
+        )
+    };
+    ($src:expr, $dst:expr, $ty:ty, $count:expr, $($N:expr),* $(,)?) => {
+        match $count {
+            $(
+                c if c >= $N => {
+                    ptr::write_volatile($dst as *mut [$ty; $N], ptr::read($src as *const [$ty; $N]));
+                    $N
+                }
+            )*
+            _ => unreachable!("count is 0"),
+        }
+    };
+}
+
+#[cfg(not(feature = "unstable"))]
+unsafe fn volatile_write_memory<T>(mut src: *const T, mut dst: *mut T, mut count: usize) {
+    unsafe {
+        while count > 0 {
+            let copied = volatile_write_array!(src, dst, T, count);
+            src = src.add(copied);
+            dst = dst.add(copied);
+            count -= copied;
+        }
+    }
+}
 
 impl<'a, T, A> VolatilePtr<'a, [T], A> {
     /// Returns the length of the slice.
@@ -21,6 +92,7 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
         self.pointer.len() == 0
     }
 
+    #[cfg(feature = "unstable")]
     /// Applies the index operation on the wrapped slice.
     ///
     /// Returns a shared `Volatile` reference to the resulting subslice.
@@ -120,6 +192,17 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
             dst.len(),
             "destination and source slices have different lengths"
         );
+
+        #[cfg(not(feature = "unstable"))]
+        unsafe {
+            volatile_read_memory(
+                self.pointer.as_ptr() as *const _,
+                dst.as_mut_ptr(),
+                dst.len(),
+            );
+        }
+
+        #[cfg(feature = "unstable")]
         unsafe {
             intrinsics::volatile_copy_nonoverlapping_memory(
                 dst.as_mut_ptr(),
@@ -175,6 +258,13 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
             src.len(),
             "destination and source slices have different lengths"
         );
+
+        #[cfg(not(feature = "unstable"))]
+        unsafe {
+            volatile_write_memory(src.as_ptr(), self.pointer.as_ptr() as *mut _, src.len());
+        }
+
+        #[cfg(feature = "unstable")]
         unsafe {
             intrinsics::volatile_copy_nonoverlapping_memory(
                 self.pointer.as_mut_ptr(),
@@ -184,6 +274,7 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
         }
     }
 
+    #[cfg(feature = "unstable")]
     /// Copies elements from one part of the slice to another part of itself, using a
     /// volatile `memmove`.
     ///
@@ -241,6 +332,7 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
         }
     }
 
+    #[cfg(feature = "unstable")]
     /// Divides one slice into two at an index.
     ///
     /// The first will contain all indices from `[0, mid)` (excluding
@@ -261,6 +353,7 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
         unsafe { self.split_at_unchecked(mid) }
     }
 
+    #[cfg(feature = "unstable")]
     unsafe fn split_at_unchecked(
         self,
         mid: usize,
@@ -277,6 +370,7 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
         }
     }
 
+    #[cfg(feature = "unstable")]
     /// Splits the slice into a slice of `N`-element arrays,
     /// starting at the beginning of the slice,
     /// and a remainder slice with length strictly less than `N`.
@@ -300,6 +394,7 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
         (array_slice, remainder)
     }
 
+    #[cfg(feature = "unstable")]
     /// Splits the slice into a slice of `N`-element arrays,
     /// assuming that there's no remainder.
     ///
@@ -330,6 +425,7 @@ impl<'a, T, A> VolatilePtr<'a, [T], A> {
 
 /// Methods for volatile byte slices
 impl<A> VolatilePtr<'_, [u8], A> {
+    #[cfg(feature = "unstable")]
     /// Sets all elements of the byte slice to the given `value` using a volatile `memset`.
     ///
     /// This method is similar to the `slice::fill` method of the standard library, with the
@@ -401,6 +497,7 @@ impl<'a, T, A, const N: usize> VolatilePtr<'a, [T; N], A> {
     }
 }
 
+#[cfg(feature = "unstable")]
 fn bounds_check(len: usize, index: impl SliceIndex<[()]>) {
     const MAX_ARRAY: [(); usize::MAX] = [(); usize::MAX];
 

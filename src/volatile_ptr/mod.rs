@@ -5,10 +5,9 @@ use crate::access::ReadWrite;
 mod macros;
 mod operations;
 
+mod slice;
 #[cfg(test)]
 mod tests;
-#[cfg(feature = "unstable")]
-mod unstable;
 #[cfg(feature = "very_unstable")]
 mod very_unstable;
 
