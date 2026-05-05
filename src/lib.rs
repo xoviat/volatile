@@ -38,7 +38,6 @@
 #![cfg_attr(feature = "very_unstable", feature(const_trait_impl))]
 #![cfg_attr(feature = "very_unstable", feature(unboxed_closures))]
 #![cfg_attr(feature = "very_unstable", feature(fn_traits))]
-#![cfg_attr(feature = "very_unstable", feature(effects))]
 #![cfg_attr(docsrs, feature(doc_auto_cfg))]
 #![cfg_attr(feature = "unstable", allow(internal_features))]
 #![warn(missing_docs)]
